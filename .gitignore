@@ -3,8 +3,12 @@
 /storage/*.key
 /vendor
 /.idea
+/.tmp
 Homestead.json
 Homestead.yaml
+.env
+.env.testing
 .env.*
 !.env.example
-composer.lock
+npm-debug.log
+yarn-error.log

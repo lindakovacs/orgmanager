@@ -10,9 +10,22 @@ return [
     | This value is the name of your application. This value is used when the
     | framework needs to place the application's name in a notification or
     | any other location as required by the application or its packages.
+    |
     */
 
     'name' => 'OrgManager',
+
+    /*
+    |--------------------------------------------------------------------------
+    | OrgManager Settings
+    |--------------------------------------------------------------------------
+    |
+    | Custom settings for OrgManager
+    */
+
+    'orgmanager' => [
+      'version' => 'v4.0 alpha',
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -162,14 +175,15 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
+        Laravel\Tinker\TinkerServiceProvider::class,
 
         /*
          * Package Service Providers...
          */
 
-        AdamWathan\EloquentOAuthL5\EloquentOAuthServiceProvider::class,
-        GrahamCampbell\GitHub\GitHubServiceProvider::class,
-        Kamaln7\Toastr\ToastrServiceProvider::class,
+        Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class,
+        OrgManager\Logos\OrgManagerLogosServiceProvider::class,
+        // OrgManager\OrgmanagerCustom\OrgmanagerCustomServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -199,6 +213,7 @@ return [
         'Artisan'      => Illuminate\Support\Facades\Artisan::class,
         'Auth'         => Illuminate\Support\Facades\Auth::class,
         'Blade'        => Illuminate\Support\Facades\Blade::class,
+        'Broadcast' => Illuminate\Support\Facades\Broadcast::class,
         'Bus'          => Illuminate\Support\Facades\Bus::class,
         'Cache'        => Illuminate\Support\Facades\Cache::class,
         'Config'       => Illuminate\Support\Facades\Config::class,
@@ -227,11 +242,9 @@ return [
         'URL'          => Illuminate\Support\Facades\URL::class,
         'Validator'    => Illuminate\Support\Facades\Validator::class,
         'View'         => Illuminate\Support\Facades\View::class,
-        'SocialAuth'   => AdamWathan\EloquentOAuth\Facades\OAuth::class,
-        'GitHub'       => GrahamCampbell\GitHub\Facades\GitHub::class,
-        'Toastr'       => Kamaln7\Toastr\Facades\Toastr::class,
+        'Github'       => GrahamCampbell\GitHub\Facades\GitHub::class,
         'Input'        => Illuminate\Support\Facades\Input::class,
-
+        'Bugsnag'      => Bugsnag\BugsnagLaravel\Facades\Bugsnag::class,
     ],
 
 ];

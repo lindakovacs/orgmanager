@@ -2,19 +2,18 @@
 
 namespace App\Traits;
 
-use Input;
 use ReCaptcha\ReCaptcha;
+use Illuminate\Http\Request;
 
 trait CaptchaTrait
 {
-    public function captchaCheck()
+    public function captchaCheck(Request $request)
     {
-        $response = Input::get('g-recaptcha-response');
-        $remoteip = $_SERVER['REMOTE_ADDR'];
-        $secret = env('RECAPTCHA_PRIVATE_KEY');
+        $remoteip = $request->ip();
+        $secret = config('recaptcha.secret');
 
         $recaptcha = new ReCaptcha($secret);
-        $resp = $recaptcha->verify($response, $remoteip);
+        $resp = $recaptcha->verify($request->input('g-recaptcha-response'), $remoteip);
         if ($resp->isSuccess()) {
             return 1;
         } else {

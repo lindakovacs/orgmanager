@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Org;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
-use Toastr;
+use App\Http\Requests\OrgPasswordRequest;
+use App\Http\Requests\CustomMessageRequest;
 
 class OrgController extends Controller
 {
@@ -14,43 +14,48 @@ class OrgController extends Controller
         $this->middleware('auth');
     }
 
-    public function showPage(Org $org)
+    public function index(Org $org)
     {
         $this->authorize('update', $org);
 
         return view('settings', compact('org'));
     }
 
-    public function changePassword(Request $request, Org $org)
+    public function changePassword(OrgPasswordRequest $request, Org $org)
     {
         $this->authorize('update', $org);
-        $this->validate($request, [
-        'org_passwd' => 'required',
-      ]);
         $org->password = bcrypt($request->input('org_passwd'));
         $org->save();
-        Toastr::success('The organization password was successfully updated.', 'Password updated!');
 
-        return redirect('org/'.$org->id);
+        return redirect('org/'.$org->id)->withSuccess('The organization password was successfully updated.');
     }
 
-    public function updateOrg(Request $request, Org $org)
+    public function update(Org $org)
     {
         $this->authorize('update', $org);
         Artisan::call('orgmanager:updateorg', [
-        'org' => $org->id,
-      ]);
-        Toastr::success('The organization was successfully updated.', 'Organization updated!');
+            'org' => $org->id,
+        ]);
 
-        return redirect('org/'.$org->id);
+        return redirect('org/'.$org->id)->withSuccess('The organization was successfully updated.');
     }
 
-    public function deleteOrg(Request $request, Org $org)
+    public function delete(Org $org)
     {
         $this->authorize('delete', $org);
         $org->delete();
-        Toastr::success('The organization was successfully deleted.', 'Organization deleted');
 
-        return redirect('dashboard');
+        return redirect('dashboard')->withSuccess('The organization was successfully deleted.');
+    }
+
+    public function message(CustomMessageRequest $request, Org $org)
+    {
+        $this->authorize('update', $org);
+
+        $org->custom_message = $request->input('message');
+
+        $org->save();
+
+        return redirect('org/'.$org->id)->withSuccess('The message was successfully updated.');
     }
 }

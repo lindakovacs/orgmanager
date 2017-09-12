@@ -3,12 +3,10 @@
 namespace App\Http\Controllers;
 
 use Auth;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redirect;
-use SocialAuth;
-use SocialNorm\Exceptions\ApplicationRejectedException;
-use SocialNorm\Exceptions\InvalidAuthorizationCodeException;
-use Toastr;
+use App\User;
+use Socialite;
+use App\Mail\WelcomeUser;
+use Illuminate\Support\Facades\Mail;
 
 class LoginController extends Controller
 {
@@ -17,45 +15,43 @@ class LoginController extends Controller
         $this->middleware('guest', ['except' => 'logoutUser']);
     }
 
-    public function showLogin()
-    {
-        return view('login');
-    }
-
     public function authorizeUser()
     {
-        return SocialAuth::authorize('github');
+        return Socialite::driver('github')->scopes(['admin:org'])->redirect();
     }
 
-    public function loginUser(Request $request)
+    public function loginUser()
     {
-        try {
-            SocialAuth::login('github', function ($user, $details) {
-                $user->email = $details->email;
-                $user->name = $details->full_name;
-                $user->token = $details->access_token;
-                $user->github_username = $details->nickname;
-                if (!$user->exists) {
-                    $user->api_token = str_random(60);
-                }
-                $user->save();
-            });
-        } catch (ApplicationRejectedException $e) {
-            return redirect('login');
-        } catch (InvalidAuthorizationCodeException $e) {
-            return redirect('login');
-        }
-        $request->session()->regenerate();
-        $user = Auth::user();
-        Toastr::success(trans('alerts.loggedin'), trans('alerts.success'));
+        $github = Socialite::driver('github')->user();
+        $user = User::where('email', '=', $github->getEmail())->first();
+        if ($user === null) {
+            $user = User::create([
+              'name'             => $github->getName(),
+              'email'            => $github->getEmail(),
+              'github_username'  => $github->getNickname(),
+              'token'            => $github->token,
+              'api_token'        => str_random(60),
+            ]);
+            Mail::to($user->email)->send(new WelcomeUser());
+            Auth::login($user);
 
-        return redirect('dashboard');
+            return redirect()->intended('dashboard')->withSuccess(trans('alerts.loggedin'));
+        }
+        $user->update([
+            'name'             => $github->getName(),
+            'email'            => $github->getEmail(),
+            'github_username'  => $github->getNickname(),
+            'token'            => $github->token,
+        ]);
+        Auth::login($user);
+
+        return redirect()->intended('dashboard')->withSuccess(trans('alerts.loggedin'));
     }
 
     public function logoutUser()
     {
         Auth::logout();
 
-        return redirect('');
+        return redirect('')->withSuccess('Sucessfully logged out!');
     }
 }

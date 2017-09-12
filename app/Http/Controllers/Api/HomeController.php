@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Org;
 use App\User;
+use App\Http\Controllers\Controller;
 
 class HomeController extends Controller
 {
@@ -38,6 +38,7 @@ class HomeController extends Controller
         $stats->users = User::count();
         $stats->orgs = Org::count();
         $stats->invites = Org::sum('invitecount');
+        $stats->version = config('app.orgmanager.version');
 
         return response()->json($stats);
     }
